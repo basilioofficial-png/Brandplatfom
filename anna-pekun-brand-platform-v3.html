@@ -1,0 +1,1768 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anna Pekun — Бренд-платформа v1.2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <style>
+
+        /* ============================================================
+           THEME VARIABLES
+           Change :root values to restyle the entire presentation.
+           ============================================================ */
+        :root {
+            /* Palette — pulled from the brand's visual language */
+            --cream:          #f5f2ec;
+            --off-white:      #ede9e1;
+            --near-black:     #0e0c0b;
+            --charcoal:       #1a1714;
+            --text-dark:      #1c1917;
+            --text-light:     #ede9e1;
+            --text-muted-d:   #a09890;
+            --text-muted-l:   #7a7068;
+            --accent:         #c4988e;   /* dusty rose — lifted from the pink tights */
+            --accent-green:   #9cc49a;   /* for positive indicators */
+            --rule-dark:      rgba(237, 233, 225, 0.1);
+            --rule-light:     rgba(28, 25, 23, 0.1);
+
+            /* Typography */
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans:  'DM Sans', sans-serif;
+
+            /* Spacing — always clamp() */
+            --slide-padding:  clamp(2rem, 5vw, 5rem);
+            --content-gap:    clamp(1rem, 2.5vw, 2.5rem);
+            --el-gap:         clamp(0.4rem, 1vw, 1rem);
+
+            /* Type scale — always clamp() */
+            --sz-display:     clamp(2.5rem, 7vw, 6.5rem);
+            --sz-h2:          clamp(1.5rem, 3.5vw, 2.8rem);
+            --sz-h3:          clamp(1rem, 2vw, 1.5rem);
+            --sz-body:        clamp(0.75rem, 1.4vw, 1rem);
+            --sz-small:       clamp(0.6rem, 1vw, 0.75rem);
+            --sz-stat:        clamp(2rem, 5.5vw, 4.5rem);
+            --sz-decor:       clamp(6rem, 20vw, 16rem);
+
+            /* Motion */
+            --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --dur: 0.75s;
+        }
+
+        /* ============================================================
+           RESET
+           ============================================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ============================================================
+           VIEWPORT BASE — mandatory rules from viewport-base.css
+           Ensures every slide fits exactly in 100vh with no overflow.
+           ============================================================ */
+        html, body { height: 100%; overflow-x: hidden; }
+
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* Every .slide = exact viewport height, no overflow ever */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Content container — flex-centered, overflow-protected */
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            padding: var(--slide-padding);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Default image constraint — overridden individually for full-bleed images */
+        img, .image-container {
+            max-width: 100%;
+            max-height: min(50vh, 400px);
+            object-fit: contain;
+        }
+
+        /* Short viewport scaling */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1rem, 3vw, 2.5rem);
+                --content-gap:   clamp(0.5rem, 1.5vw, 1.2rem);
+                --sz-display:    clamp(2rem, 6vw, 4rem);
+                --sz-h2:         clamp(1.25rem, 3vw, 2rem);
+                --sz-stat:       clamp(1.5rem, 4vw, 3rem);
+                --sz-decor:      clamp(4rem, 14vw, 10rem);
+            }
+        }
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 2.5vw, 1.5rem);
+                --content-gap:   clamp(0.3rem, 1vw, 0.75rem);
+                --sz-display:    clamp(1.5rem, 5vw, 2.5rem);
+                --sz-body:       clamp(0.65rem, 1.2vw, 0.875rem);
+            }
+            .nav-dots { display: none; }
+        }
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1rem);
+                --sz-display:    clamp(1.2rem, 3.5vw, 1.8rem);
+                --sz-h2:         clamp(1rem, 2.5vw, 1.4rem);
+            }
+        }
+
+        /* Narrow viewport stacking */
+        @media (max-width: 640px) {
+            .two-col, .pillar-detail-grid, .anti-grid,
+            .voice-grid, .voices-grid, .apply-grid, .stats-row {
+                grid-template-columns: 1fr !important;
+                gap: clamp(1rem, 3vw, 2rem) !important;
+            }
+            .three-col { grid-template-columns: 1fr !important; gap: clamp(0.8rem, 2vw, 1.5rem) !important; }
+            .stage-grid { grid-template-columns: 1fr !important; }
+            .stage-arrow-el { transform: rotate(90deg); }
+            .split-slide { flex-direction: column !important; }
+            .img-col { width: 100% !important; height: 35vh !important; flex-shrink: 0; }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ============================================================
+           BASE STYLES
+           ============================================================ */
+        body {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            background: var(--near-black);
+            color: var(--text-light);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Slide theme classes */
+        .slide-dark    { background: var(--near-black); color: var(--text-light); }
+        .slide-charcoal{ background: var(--charcoal);   color: var(--text-light); }
+        .slide-light   { background: var(--cream);      color: var(--text-dark); }
+        .slide-off     { background: var(--off-white);  color: var(--text-dark); }
+
+        /* ============================================================
+           PROGRESS BAR
+           Thin accent line at top indicating deck position.
+           ============================================================ */
+        .progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 2px;
+            width: 0%;
+            background: var(--accent);
+            z-index: 1000;
+            transition: width 0.4s ease;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           NAV DOTS
+           Vertical dot indicators on right edge.
+           ============================================================ */
+        .nav-dots {
+            position: fixed;
+            right: clamp(0.75rem, 2vw, 1.5rem);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(5px, 0.7vh, 8px);
+            z-index: 900;
+            list-style: none;
+        }
+
+        .nav-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.22);
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.7);
+        }
+
+        /* ============================================================
+           ENTRANCE ANIMATIONS
+           Slides gain .visible via IntersectionObserver.
+           Children with .reveal* classes animate in on entry.
+           ============================================================ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity var(--dur) var(--ease-expo),
+                        transform var(--dur) var(--ease-expo);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(calc(-1 * clamp(18px, 3vw, 36px)));
+            transition: opacity var(--dur) var(--ease-expo),
+                        transform var(--dur) var(--ease-expo);
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(clamp(18px, 3vw, 36px));
+            transition: opacity var(--dur) var(--ease-expo),
+                        transform var(--dur) var(--ease-expo);
+        }
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.94);
+            transition: opacity var(--dur) var(--ease-expo),
+                        transform var(--dur) var(--ease-expo);
+        }
+
+        /* All reveal variants resolve to identity transform when slide is visible */
+        .slide.visible .reveal,
+        .slide.visible .reveal-left,
+        .slide.visible .reveal-right,
+        .slide.visible .reveal-scale {
+            opacity: 1;
+            transform: translateY(0) translateX(0) scale(1);
+        }
+
+        /* Stagger delay helpers */
+        .d1 { transition-delay: 0.05s; }
+        .d2 { transition-delay: 0.18s; }
+        .d3 { transition-delay: 0.32s; }
+        .d4 { transition-delay: 0.46s; }
+        .d5 { transition-delay: 0.60s; }
+        .d6 { transition-delay: 0.75s; }
+        .d7 { transition-delay: 0.90s; }
+
+        /* ============================================================
+           LOGO
+           Placed in bottom-right of each slide.
+           Use Logo_white.png on dark slides, Logo_black.png on light.
+           ============================================================ */
+        .slide-logo {
+            position: absolute;
+            bottom: clamp(1.2rem, 3vh, 2.5rem);
+            right: clamp(1.5rem, 4vw, 3.5rem);
+            height: clamp(16px, 2.2vh, 28px);
+            width: auto;
+            max-height: none !important; /* Override viewport-base for logo */
+            opacity: 0.8;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           TYPOGRAPHY SYSTEM
+           ============================================================ */
+        h1 {
+            font-family: var(--font-serif);
+            font-weight: 300;
+            font-size: var(--sz-display);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+        }
+        h2 {
+            font-family: var(--font-serif);
+            font-weight: 400;
+            font-size: var(--sz-h2);
+            line-height: 1.1;
+        }
+        h3 {
+            font-family: var(--font-sans);
+            font-weight: 400;
+            font-size: var(--sz-h3);
+            line-height: 1.25;
+        }
+        p, li {
+            font-family: var(--font-sans);
+            font-weight: 300;
+            font-size: var(--sz-body);
+            line-height: 1.65;
+        }
+
+        .eyebrow {
+            display: block;
+            font-family: var(--font-sans);
+            font-size: var(--sz-small);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            opacity: 0.42;
+            margin-bottom: clamp(0.4rem, 1vh, 0.8rem);
+        }
+
+        .accent { color: var(--accent); }
+
+        /* ============================================================
+           DIVIDERS
+           ============================================================ */
+
+        /* Full-width thin rule */
+        .hr {
+            width: 100%;
+            height: 1px;
+            background: var(--rule-dark);
+            flex-shrink: 0;
+        }
+        .slide-light .hr,
+        .slide-off .hr  { background: var(--rule-light); }
+
+        /* Short accent underline */
+        .hr-accent {
+            width: clamp(28px, 4vw, 48px);
+            height: 1px;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           DECORATIVE BACKGROUND NUMBER
+           Large, near-invisible section number behind content.
+           aria-hidden so screen readers skip it.
+           ============================================================ */
+        .bg-num {
+            position: absolute;
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-weight: 300;
+            font-size: var(--sz-decor);
+            line-height: 0.85;
+            opacity: 0.04;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           PILLAR ACCENT TAG
+           Small uppercase accent label above pillar titles.
+           ============================================================ */
+        .pillar-tag {
+            font-size: var(--sz-small);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            margin-bottom: 0.2em;
+        }
+
+        /* ============================================================
+           SPLIT SLIDE LAYOUT
+           Image column + content column side by side.
+           ============================================================ */
+        .split-slide { flex-direction: row !important; }
+
+        /* Full-height image column — overrides default img max-height */
+        .img-col { flex-shrink: 0; overflow: hidden; }
+        .img-col img {
+            width: 100%;
+            height: 100%;
+            max-height: none !important; /* Must override viewport-base for column images */
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ============================================================
+           STATS ROW (slide 2)
+           Three large stat blocks in a grid.
+           ============================================================ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(1rem, 3vw, 3rem);
+        }
+        .stat-block { display: flex; flex-direction: column; gap: 0.15em; }
+        .stat-num {
+            font-family: var(--font-serif);
+            font-weight: 300;
+            font-size: var(--sz-stat);
+            line-height: 1;
+            color: var(--accent);
+        }
+        .stat-label {
+            font-size: var(--sz-small);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            opacity: 0.5;
+            line-height: 1.4;
+        }
+
+        /* ============================================================
+           TWO-COLUMN TEXT LAYOUT (slides 4, 7)
+           ============================================================ */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 5vw, 5.5rem);
+            align-items: start;
+        }
+        .col-block { display: flex; flex-direction: column; gap: var(--el-gap); }
+
+        /* ============================================================
+           JOURNEY STAGES (slide 8)
+           3 stages with arrow separators.
+           ============================================================ */
+        .stage-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            gap: clamp(0.75rem, 2vw, 2rem);
+            align-items: start;
+        }
+        .stage-item { display: flex; flex-direction: column; gap: clamp(0.3rem, 0.7vh, 0.65rem); }
+        .stage-arrow-el {
+            color: var(--accent);
+            opacity: 0.38;
+            font-size: clamp(1rem, 2.5vw, 2rem);
+            align-self: flex-start;
+            padding-top: clamp(0.2rem, 0.5vh, 0.4rem);
+        }
+
+        /* ============================================================
+           PILLAR LIST (slide 9 — DNA overview)
+           Horizontal rows with number + name.
+           ============================================================ */
+        .pillar-list { list-style: none; display: flex; flex-direction: column; }
+        .pillar-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5em;
+            padding: clamp(0.38rem, 0.9vh, 0.7rem) 0;
+            border-bottom: 1px solid var(--rule-dark);
+            font-family: var(--font-serif);
+            font-size: clamp(0.88rem, 1.8vw, 1.25rem);
+        }
+        .pillar-n {
+            font-family: var(--font-sans);
+            font-size: var(--sz-small);
+            color: var(--accent);
+            min-width: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        /* ============================================================
+           PILLAR DETAIL GRID (slides 10)
+           Two-column detailed pillar breakdown.
+           ============================================================ */
+        .pillar-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 5vw, 5.5rem);
+        }
+        .pillar-d { display: flex; flex-direction: column; gap: var(--el-gap); }
+
+        /* ============================================================
+           THREE-COLUMN LAYOUT (slide 11)
+           ============================================================ */
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: clamp(1.2rem, 3vw, 3.5rem);
+        }
+
+        /* ============================================================
+           FOUNDER QUOTES (slide 13)
+           Vertical list of attributed quotations.
+           ============================================================ */
+        .founder-quotes { display: flex; flex-direction: column; gap: clamp(0.5rem, 1.3vh, 1rem); }
+        .founder-q {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(0.82rem, 1.7vw, 1.15rem);
+            border-left: 2px solid var(--accent);
+            padding-left: clamp(0.7rem, 1.4vw, 1.1rem);
+            opacity: 0.82;
+            line-height: 1.5;
+        }
+
+        /* ============================================================
+           VOICE GRID (slide 14 — tone of voice 2×2)
+           ============================================================ */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1rem, 2vh, 1.8rem) clamp(1.8rem, 4.5vw, 4.5rem);
+        }
+        .voice-item {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.25rem, 0.6vh, 0.5rem);
+            padding: clamp(0.55rem, 1.2vh, 1rem) 0;
+            border-top: 1px solid var(--rule-light);
+        }
+        .voice-principle-text {
+            font-family: var(--font-serif);
+            font-size: clamp(0.92rem, 2vw, 1.35rem);
+            font-weight: 400;
+            line-height: 1.3;
+        }
+        .voice-contra {
+            font-size: var(--sz-small);
+            opacity: 0.36;
+            text-decoration: line-through;
+        }
+
+        /* ============================================================
+           ANTI-BRAND GRID (slide 15)
+           Two columns: what we are vs. what we're not.
+           ============================================================ */
+        .anti-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 4vw, 5rem);
+        }
+        .anti-col { display: flex; flex-direction: column; gap: 0; }
+        .anti-col-label {
+            font-size: var(--sz-small);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            opacity: 0.32;
+            margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
+        }
+        .anti-item {
+            font-family: var(--font-serif);
+            font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+            padding: clamp(0.32rem, 0.8vh, 0.62rem) 0;
+            border-bottom: 1px solid var(--rule-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75em;
+        }
+        /* "Is" items use + prefix in green */
+        .anti-item.is::before  { content: '+'; color: var(--accent-green); opacity: 0.85; }
+        /* "Not" items use — prefix in accent */
+        .anti-item.not::before { content: '—'; color: var(--accent); opacity: 0.6; }
+
+        /* ============================================================
+           RETENTION DISPLAY (slide 16)
+           Large numbers showing current vs. potential retention.
+           ============================================================ */
+        .retention-display {
+            display: flex;
+            align-items: center;
+            gap: clamp(1rem, 3vw, 3rem);
+            padding: clamp(0.8rem, 2vh, 1.8rem) 0;
+        }
+        .ret-block { display: flex; flex-direction: column; gap: 0.15em; }
+        .ret-num {
+            font-family: var(--font-serif);
+            font-size: clamp(2.5rem, 6.5vw, 5.5rem);
+            font-weight: 300;
+            line-height: 1;
+        }
+        .ret-label { font-size: var(--sz-small); opacity: 0.48; text-transform: uppercase; letter-spacing: 0.12em; }
+        .ret-arrow { font-size: clamp(1.5rem, 3.5vw, 3rem); color: var(--accent); opacity: 0.45; }
+
+        /* ============================================================
+           APPLY GRID (slide 17 — how to apply)
+           2×2 grid of application areas.
+           ============================================================ */
+        .apply-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.5rem, 1.4vh, 1.1rem) clamp(1.2rem, 2.8vw, 2.8rem);
+        }
+        .apply-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.28em;
+            padding: clamp(0.45rem, 1.1vh, 0.9rem) 0;
+            border-top: 1px solid var(--rule-dark);
+        }
+        .apply-n    { font-size: var(--sz-small); color: var(--accent); font-weight: 400; letter-spacing: 0.12em; }
+        .apply-title { font-family: var(--font-serif); font-size: clamp(0.82rem, 1.6vw, 1.15rem); font-weight: 400; }
+        .apply-sub  { font-size: var(--sz-small); opacity: 0.48; line-height: 1.45; }
+
+        /* ============================================================
+           FILTER LIST (slide 18 — 5 questions)
+           ============================================================ */
+        .filter-list { list-style: none; display: flex; flex-direction: column; max-width: 62ch; }
+        .filter-item {
+            display: flex;
+            gap: 1.4em;
+            align-items: flex-start;
+            padding: clamp(0.45rem, 1.1vh, 0.95rem) 0;
+            border-bottom: 1px solid var(--rule-light);
+        }
+        .filter-n {
+            font-family: var(--font-serif);
+            font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+            font-weight: 300;
+            color: var(--accent);
+            line-height: 1;
+            min-width: 1.6em;
+            flex-shrink: 0;
+            padding-top: 0.05em;
+        }
+        .filter-q { font-size: var(--sz-body); line-height: 1.55; }
+
+        /* ============================================================
+           CLIENT VOICES GRID (slide 19)
+           2×2 grid of quotation cards.
+           ============================================================ */
+        .voices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.9rem, 2.2vh, 1.8rem) clamp(1.8rem, 4.5vw, 4.5rem);
+        }
+        .voice-card {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.28rem, 0.7vh, 0.55rem);
+            padding: clamp(0.55rem, 1.3vh, 1.1rem) 0;
+            border-top: 1px solid var(--rule-dark);
+        }
+        .voice-theme {
+            font-size: var(--sz-small);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            opacity: 0.82;
+        }
+        .voice-text {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: clamp(0.85rem, 1.85vw, 1.28rem);
+            line-height: 1.55;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Progress bar — updates via JS on scroll -->
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+
+    <!-- Navigation dots — generated by JS -->
+    <nav class="nav-dots" aria-label="Навигация по слайдам"></nav>
+
+
+    <!-- ================================================================
+         SLIDE 1 — TITLE
+         Split: full-height hero portrait (L) + brand intro text (R)
+         Image: 12:13:40 — profile portrait, cream jacket
+         ================================================================ -->
+    <section class="slide slide-dark split-slide" id="slide-title" aria-label="Титульный слайд">
+
+        <!-- Left: hero editorial portrait -->
+        <div class="img-col" style="width: 44%;">
+            <img src="IMAGE 2026-04-02 12:13:40.jpg" alt="Anna Pekun — образ коллекции">
+        </div>
+
+        <!-- Right: title content -->
+        <div class="slide-content">
+            <span class="eyebrow reveal d1">Бренд-платформа</span>
+
+            <h1 class="reveal d2" style="
+                font-size: clamp(3rem, 9vw, 7.5rem);
+                letter-spacing: 0.04em;
+                line-height: 0.88;
+            ">ANNA<br>PEKUN</h1>
+
+            <p class="reveal d3" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                color: var(--accent);
+                font-size: clamp(1rem, 2.5vw, 1.75rem);
+                margin-top: clamp(0.6rem, 1.5vh, 1.2rem);
+            ">Бренд-платформа</p>
+
+            <div class="hr reveal d4" style="margin: clamp(1rem, 2.5vh, 2rem) 0;"></div>
+
+            <p class="reveal d5" style="
+                font-size: var(--sz-small);
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                opacity: 0.38;
+            ">Версия&nbsp;1.2&nbsp; · &nbsp;2026&nbsp; · &nbsp;Конфиденциально</p>
+
+            <p class="reveal d6" style="
+                font-size: var(--sz-small);
+                opacity: 0.3;
+                margin-top: clamp(0.4rem, 1vh, 0.7rem);
+                max-width: 38ch;
+            ">На основе данных клиентских исследований Anna Pekun</p>
+        </div>
+
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 2 — RESEARCH BASE
+         Full: methodology and data sources powering the platform.
+         Light background — establishes credibility of the document.
+         ================================================================ -->
+    <section class="slide slide-off" id="slide-data" aria-label="Основа платформы — данные">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">Основа платформы</span>
+            <h2 class="reveal d2">На основе данных</h2>
+
+            <div class="hr reveal d3" style="margin: clamp(0.9rem, 2.2vh, 1.8rem) 0;"></div>
+
+            <div class="stats-row reveal d4">
+                <div class="stat-block">
+                    <span class="stat-num">540</span>
+                    <span class="stat-label">клиентов<br>опрошено</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-num">16</span>
+                    <span class="stat-label">глубинных<br>интервью</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-num">57 918</span>
+                    <span class="stat-label">покупателей<br>в RFM-анализе</span>
+                </div>
+            </div>
+
+            <div class="hr reveal d5" style="margin: clamp(0.9rem, 2.2vh, 1.8rem) 0;"></div>
+
+            <p class="reveal d6" style="
+                font-size: var(--sz-small);
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                opacity: 0.45;
+            ">Аудит маркетинга 2025–2026 &nbsp;·&nbsp; Аудит ассортимента &nbsp;·&nbsp; RFM-анализ базы покупателей</p>
+
+            <p class="reveal d7" style="
+                margin-top: clamp(0.8rem, 2vh, 1.5rem);
+                font-size: var(--sz-body);
+                opacity: 0.65;
+                max-width: 62ch;
+            ">Этот документ — основа всех коммуникаций бренда. Всё, что выходит от бренда — контент, письма, посты, работа с блогерами, оформление магазинов — должно соответствовать тому, что написано здесь.</p>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 3 — BRAND ESSENCE
+         Split: content (L) + seated lifestyle image (R)
+         Image: 12:13:43 — seated woman, cream coat, pink tights
+         ================================================================ -->
+    <section class="slide slide-dark split-slide" id="slide-essence" aria-label="Суть бренда">
+
+        <!-- Left: content -->
+        <div class="slide-content" style="max-width: 56%;">
+            <!-- Decorative section number -->
+            <span class="bg-num" aria-hidden="true" style="top: -0.08em; left: -0.06em;">01</span>
+
+            <span class="eyebrow reveal d1">01 — Суть бренда</span>
+            <h2 class="reveal d2" style="line-height: 1.05;">Кто мы и зачем<br>существуем</h2>
+
+            <div class="hr-accent reveal d3" style="margin: clamp(0.8rem, 1.8vh, 1.4rem) 0;"></div>
+
+            <p class="reveal d4" style="max-width: 44ch;">
+                Мы делаем вещи, которые остаются. Не на один сезон — на несколько лет. Без быстрой моды, без демонстративного люкса. Просто хорошо и надолго. Anna Pekun — более 16 точек, онлайн, маркетплейсы.
+            </p>
+
+            <p class="reveal d5" style="
+                margin-top: clamp(0.6rem, 1.4vh, 1.1rem);
+                font-size: var(--sz-small);
+                text-transform: uppercase;
+                letter-spacing: 0.15em;
+                opacity: 0.38;
+            ">Интернет-магазин &nbsp;·&nbsp; Маркетплейсы &nbsp;·&nbsp; Розница</p>
+        </div>
+
+        <!-- Right: lifestyle image -->
+        <div class="img-col" style="width: 44%;">
+            <img src="IMAGE 2026-04-02 12:13:43.jpg" alt="Anna Pekun — образ жизни">
+        </div>
+
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 4 — MISSION & POSITIONING
+         Full light: two-column breakdown of mission and positioning.
+         ================================================================ -->
+    <section class="slide slide-light" id="slide-mission" aria-label="Миссия и позиционирование">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">01 — Суть бренда</span>
+            <h2 class="reveal d2">Миссия &amp; Позиционирование</h2>
+            <div class="hr reveal d3" style="margin: clamp(0.8rem, 2vh, 1.6rem) 0;"></div>
+
+            <div class="two-col reveal d4">
+                <div class="col-block">
+                    <p class="pillar-tag">Миссия</p>
+                    <p>Одевать женщину так, чтобы она думала о жизни — а не об одежде.</p>
+                    <p style="margin-top: clamp(0.4rem, 0.9vh, 0.75rem); opacity: 0.72;">Вещи, которые не требуют усилий по утрам, не устаревают через сезон и не предают в важный момент. Одежда, которая существует на стороне женщины — а не требует от неё внимания к себе.</p>
+                </div>
+                <div class="col-block">
+                    <p class="pillar-tag">Позиционирование</p>
+                    <p>Одежда для женщины, которая уже знает себя. Не масс-маркет с его быстрой модой и не люкс с его демонстративностью. Осознанный средний плюс: качество ткани, точная посадка, вещь на годы.</p>
+                </div>
+            </div>
+
+            <div class="hr reveal d5" style="margin: clamp(0.8rem, 2vh, 1.6rem) 0;"></div>
+
+            <p class="reveal d6" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: clamp(0.85rem, 1.8vw, 1.25rem);
+                opacity: 0.52;
+                max-width: 68ch;
+            ">Видение: стать не «любимым магазином со скидками», а постоянной, надёжной частью гардероба — как хороший парикмахер или проверенный ресторан.</p>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 5 — EMOTIONAL CONTRACT
+         Full dark: the one key feeling the brand must create at every touchpoint.
+         ================================================================ -->
+    <section class="slide slide-charcoal" id="slide-contract" aria-label="Эмоциональный контракт">
+        <div class="slide-content" style="justify-content: center;">
+
+            <span class="eyebrow reveal d1">01 — Суть бренда</span>
+
+            <!-- Decorative large opening quote -->
+            <div aria-hidden="true" class="reveal d2" style="
+                font-family: var(--font-serif);
+                font-size: clamp(5rem, 14vw, 11rem);
+                line-height: 0.6;
+                opacity: 0.07;
+                color: var(--accent);
+                pointer-events: none;
+                margin-bottom: calc(-1 * clamp(1rem, 2vh, 2rem));
+            ">«</div>
+
+            <blockquote class="reveal d3" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-weight: 300;
+                font-size: clamp(1.2rem, 3vw, 2.2rem);
+                line-height: 1.55;
+                max-width: 58ch;
+            ">Не эйфория от покупки. Это спокойная уверенность, что решение принято правильно — и тихая радость от того, что видишь себя в зеркале.</blockquote>
+
+            <div class="hr-accent reveal d4" style="margin: clamp(1rem, 2.5vh, 2rem) 0;"></div>
+
+            <p class="reveal d5" style="
+                font-size: var(--sz-small);
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                opacity: 0.32;
+            ">Эмоциональный контракт</p>
+
+            <p class="reveal d6" style="
+                font-size: var(--sz-body);
+                opacity: 0.52;
+                max-width: 55ch;
+                margin-top: clamp(0.4rem, 1vh, 0.8rem);
+            ">Именно это ощущение бренд должен создавать в каждой точке контакта — от поста в Telegram до примерочной.</p>
+
+        </div>
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 6 — OUR WOMAN
+         Split: full-height standing portrait (L) + customer profile (R)
+         Image: 12:13:45 — full-length cream maxi coat + pink heels
+         ================================================================ -->
+    <section class="slide slide-dark split-slide" id="slide-woman" aria-label="Наша женщина">
+
+        <!-- Left: full-length portrait -->
+        <div class="img-col" style="width: 42%;">
+            <img src="IMAGE 2026-04-02 12:13:45.jpg" alt="Anna Pekun — наша женщина">
+        </div>
+
+        <!-- Right: content -->
+        <div class="slide-content">
+            <span class="bg-num" aria-hidden="true" style="bottom: -0.05em; right: -0.06em; left: auto;">02</span>
+
+            <span class="eyebrow reveal d1">02 — Наша женщина</span>
+            <h2 class="reveal d2" style="line-height: 1.05;">Для кого мы<br>существуем</h2>
+            <div class="hr-accent reveal d3" style="margin: clamp(0.7rem, 1.7vh, 1.3rem) 0;"></div>
+
+            <p class="reveal d4" style="max-width: 44ch;">
+                Данные 540 опрошенных, 16 интервью и RFM-анализ 57 918 покупателей дают точный портрет. Это не гипотеза — это факт.
+            </p>
+
+            <div class="reveal d5" style="margin-top: clamp(0.8rem, 1.8vh, 1.5rem); display: flex; flex-direction: column; gap: clamp(0.28rem, 0.7vh, 0.55rem);">
+                <p style="font-size: var(--sz-small); text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.38;">Ключевые черты</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Ценит качество, не гонится за трендами</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Инвестирует в гардероб осознанно</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Знает себя, не нуждается в подтверждении</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Ценит философию и подход — не только вещь</p>
+            </div>
+        </div>
+
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 6b — PORTRAIT DATA
+         Full light: four stat cards — age, profession, budget, frequency.
+         ================================================================ -->
+    <section class="slide slide-light" id="slide-portrait-data" aria-label="Данные портрета покупателя">
+        <div class="slide-content">
+
+            <span class="bg-num" aria-hidden="true" style="top: -0.08em; left: -0.06em; color: var(--rule-light);">02</span>
+
+            <span class="eyebrow reveal d1">02 — Наша женщина</span>
+            <h2 class="reveal d2">Портрет покупателя</h2>
+            <p class="reveal d3" style="font-size: var(--sz-body); opacity: 0.5; margin-top: clamp(0.2rem, 0.5vh, 0.4rem); max-width: 70ch;">
+                Данные 540 опрошенных клиентов, RFM-анализ 57 918 покупателей и 14 месяцев продаж. Это факт, не гипотеза.
+            </p>
+
+            <div class="hr reveal d4" style="margin: clamp(0.8rem, 1.8vh, 1.5rem) 0;"></div>
+
+            <div class="reveal d5" style="
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: clamp(0.6rem, 1.4vw, 1.2rem);
+            ">
+
+                <!-- ВОЗРАСТ -->
+                <div style="
+                    border-left: 3px solid var(--accent);
+                    padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(0.9rem, 2vw, 1.6rem);
+                    background: white;
+                ">
+                    <p style="font-size: var(--sz-small); text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 500; margin-bottom: 0.3em;">Возраст</p>
+                    <p style="font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1; color: var(--text-dark); margin-bottom: 0.25em;">35–40 лет</p>
+                    <p style="font-size: var(--sz-body); color: var(--text-muted-l);">Ядро аудитории. 70% базы — от 30 до 45 лет.</p>
+                </div>
+
+                <!-- ПРОФЕССИЯ -->
+                <div style="
+                    border-left: 3px solid var(--accent);
+                    padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(0.9rem, 2vw, 1.6rem);
+                    background: white;
+                ">
+                    <p style="font-size: var(--sz-small); text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 500; margin-bottom: 0.3em;">Профессия</p>
+                    <p style="font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1; color: var(--text-dark); margin-bottom: 0.25em;">~55%</p>
+                    <p style="font-size: var(--sz-body); color: var(--text-muted-l);">IT, финансы, госсектор, корпоративная среда. Одежда — рабочий инструмент.</p>
+                </div>
+
+                <!-- БЮДЖЕТ -->
+                <div style="
+                    border-left: 3px solid var(--accent);
+                    padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(0.9rem, 2vw, 1.6rem);
+                    background: white;
+                ">
+                    <p style="font-size: var(--sz-small); text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 500; margin-bottom: 0.3em;">Бюджет за визит</p>
+                    <p style="font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1; color: var(--text-dark); margin-bottom: 0.25em;">10–20 тыс. ₽</p>
+                    <p style="font-size: var(--sz-body); color: var(--text-muted-l);">Ядро. Зона роста — 20–30 тыс. Рациональный, не импульсивный выбор.</p>
+                </div>
+
+                <!-- ЧАСТОТА -->
+                <div style="
+                    border-left: 3px solid var(--accent);
+                    padding: clamp(0.7rem, 1.5vw, 1.2rem) clamp(0.9rem, 2vw, 1.6rem);
+                    background: white;
+                ">
+                    <p style="font-size: var(--sz-small); text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 500; margin-bottom: 0.3em;">Частота покупок</p>
+                    <p style="font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 700; line-height: 1; color: var(--text-dark); margin-bottom: 0.25em;">65%</p>
+                    <p style="font-size: var(--sz-body); color: var(--text-muted-l);">Минимум раз в 1–2 месяца. Регулярный лояльный покупатель — не случайный.</p>
+                </div>
+
+            </div>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 7 — PORTRAIT & VALUES
+         Full light: the defining metaphor + two-column value breakdown.
+         ================================================================ -->
+    <section class="slide slide-off" id="slide-portrait" aria-label="Портрет и ценности">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">02 — Наша женщина</span>
+
+            <blockquote class="reveal d2" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: clamp(1rem, 2.5vw, 1.75rem);
+                line-height: 1.55;
+                max-width: 56ch;
+                color: var(--text-dark);
+            ">Представьте человека, который умеет путешествовать налегке. Берёт в поездку семь вещей — и из них складывается двадцать образов. Она не думает об одежде каждое утро. Она думала об этом один раз — когда выбирала.</blockquote>
+
+            <div class="hr reveal d3" style="margin: clamp(1rem, 2.3vh, 1.9rem) 0;"></div>
+
+            <div class="two-col reveal d4">
+                <div class="col-block">
+                    <p class="pillar-tag">Её ценности</p>
+                    <p>Тренды — на последнем месте. Это разумный инвестор в гардероб. Универсальность важнее актуальности: вещь должна работать в офисе, в путешествии, на ужине.</p>
+                </div>
+                <div class="col-block">
+                    <p class="pillar-tag">Её словами</p>
+                    <p>Она ценит не только вещи — она ценит то, что за ними стоит. Философию. Подход. Ощущение. Это редкость — и огромный актив бренда.</p>
+                </div>
+            </div>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 8 — JOURNEY STAGES
+         Full light: three relationship stages with the brand.
+         ================================================================ -->
+    <section class="slide slide-light" id="slide-stages" aria-label="Стадии отношений с брендом">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">02 — Глубина портрета</span>
+            <h2 class="reveal d2">Она бывает разной</h2>
+            <div class="hr reveal d3" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <div class="stage-grid reveal d4">
+                <div class="stage-item">
+                    <p class="pillar-tag">Незнакомка</p>
+                    <h3>Скептична</h3>
+                    <p>Привыкла, что бренды обещают больше, чем дают. Пришла с недоверием, которое нужно заслужить.</p>
+                </div>
+                <span class="stage-arrow-el" aria-hidden="true">→</span>
+                <div class="stage-item">
+                    <p class="pillar-tag">Покупательница</p>
+                    <h3>Попробовала</h3>
+                    <p>Осталась довольна, но привычки ещё нет. Оценивает, сравнивает, возвращается не автоматически.</p>
+                </div>
+                <span class="stage-arrow-el" aria-hidden="true">→</span>
+                <div class="stage-item">
+                    <p class="pillar-tag">Своя</p>
+                    <h3>Возвращается</h3>
+                    <p>Рекомендует, не ждёт скидок, говорит о бренде другим. Органический реферал.</p>
+                </div>
+            </div>
+
+            <div class="hr reveal d5" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <p class="reveal d6" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                opacity: 0.5;
+                font-size: clamp(0.85rem, 1.8vw, 1.2rem);
+            ">Бренд должен чувствовать, на каком этапе она находится. Один голос, разная глубина.</p>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 9 — DNA OVERVIEW
+         Full dark: section intro + all five pillars listed.
+         ================================================================ -->
+    <section class="slide slide-dark" id="slide-dna" aria-label="ДНК бренда">
+        <div class="slide-content">
+            <span class="bg-num" aria-hidden="true" style="top: -0.06em; right: -0.06em; left: auto;">03</span>
+
+            <span class="eyebrow reveal d1">03 — ДНК бренда</span>
+            <h2 class="reveal d2">Что мы транслируем<br>всегда</h2>
+
+            <p class="reveal d3" style="
+                font-size: var(--sz-body);
+                opacity: 0.45;
+                margin-top: clamp(0.3rem, 0.7vh, 0.6rem);
+                max-width: 52ch;
+            ">ДНК — это то, что остаётся неизменным, когда меняется всё остальное. Сезоны, тренды, форматы контента — всё это пройдёт. ДНК — нет.</p>
+
+            <div class="hr reveal d4" style="margin: clamp(1rem, 2.3vh, 1.9rem) 0;"></div>
+
+            <ul class="pillar-list reveal d5">
+                <li class="pillar-row">
+                    <span class="pillar-n">01</span>
+                    <span>Качество как язык уважения</span>
+                </li>
+                <li class="pillar-row">
+                    <span class="pillar-n">02</span>
+                    <span>Женственность без усилий</span>
+                </li>
+                <li class="pillar-row">
+                    <span class="pillar-n">03</span>
+                    <span>Почерк, а не тренды</span>
+                </li>
+                <li class="pillar-row">
+                    <span class="pillar-n">04</span>
+                    <span>Атмосфера как продукт</span>
+                </li>
+                <li class="pillar-row" style="border-bottom: none;">
+                    <span class="pillar-n">05</span>
+                    <span>Долговечность как позиция</span>
+                </li>
+            </ul>
+        </div>
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 10 — PILLARS 1 & 2
+         Full light: detailed breakdown of first two brand pillars.
+         ================================================================ -->
+    <section class="slide slide-light" id="slide-pillars-ab" aria-label="Столп 1 и 2">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">03 — ДНК бренда</span>
+
+            <div class="pillar-detail-grid reveal d2">
+                <div class="pillar-d">
+                    <span class="pillar-tag">Столп 1</span>
+                    <h3>Качество как язык уважения</h3>
+                    <div class="hr-accent" style="margin: clamp(0.4rem, 0.9vh, 0.75rem) 0;"></div>
+                    <p>Мы не продаём ткань — мы продаём решение. Когда женщина надевает вещь Anna Pekun, она не думает «надеюсь, не сядет». Качество — это способ сказать покупателю: мы думали о тебе, когда это шили.</p>
+                    <p style="
+                        margin-top: clamp(0.4rem, 0.9vh, 0.75rem);
+                        font-family: var(--font-serif);
+                        font-style: italic;
+                        font-size: clamp(0.78rem, 1.5vw, 1rem);
+                        opacity: 0.5;
+                    ">В коммуникации: говорим о составе, производстве, о том, как вещь ведёт себя через год.</p>
+                </div>
+                <div class="pillar-d">
+                    <span class="pillar-tag">Столп 2</span>
+                    <h3>Женственность без усилий</h3>
+                    <div class="hr-accent" style="margin: clamp(0.4rem, 0.9vh, 0.75rem) 0;"></div>
+                    <p>Наша женщина не «старается выглядеть». Она выглядит — потому что одежда ей помогает, а не мешает. Женственность — это посадка, которая попадает в фигуру. Силуэт, который подчёркивает. Цвет, который оживляет.</p>
+                    <p style="
+                        margin-top: clamp(0.4rem, 0.9vh, 0.75rem);
+                        font-family: var(--font-serif);
+                        font-style: italic;
+                        font-size: clamp(0.78rem, 1.5vw, 1rem);
+                        opacity: 0.5;
+                    ">В коммуникации: показываем образы, а не вещи. Женщину в движении — не позирующую.</p>
+                </div>
+            </div>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 11 — PILLARS 3, 4 & 5
+         Full off-white: three remaining brand DNA pillars.
+         ================================================================ -->
+    <section class="slide slide-off" id="slide-pillars-cde" aria-label="Столп 3, 4 и 5">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">03 — ДНК бренда</span>
+
+            <div class="three-col reveal d2">
+                <div class="col-block">
+                    <span class="pillar-tag">Столп 3</span>
+                    <h3>Почерк,<br>а не тренды</h3>
+                    <div class="hr-accent" style="margin: clamp(0.4rem, 0.9vh, 0.75rem) 0;"></div>
+                    <p>Мы не копируем сезонные тренды — мы их переосмысляем. Собственные ткани, окрашивание, принты. Классические силуэты с неожиданными деталями. То, что появляется у нас, не появится больше нигде.</p>
+                </div>
+                <div class="col-block">
+                    <span class="pillar-tag">Столп 4</span>
+                    <h3>Атмосфера<br>как продукт</h3>
+                    <div class="hr-accent" style="margin: clamp(0.4rem, 0.9vh, 0.75rem) 0;"></div>
+                    <p>191 клиент написал слово «атмосфера» в открытом вопросе. Люди покупают не только вещи — они покупают ощущение бренда. Магазин, запах, свет, упаковка, открытка в посылке.</p>
+                </div>
+                <div class="col-block">
+                    <span class="pillar-tag">Столп 5</span>
+                    <h3>Долговечность<br>как позиция</h3>
+                    <div class="hr-accent" style="margin: clamp(0.4rem, 0.9vh, 0.75rem) 0;"></div>
+                    <p>Мы создаём вещи с расчётом на годы, а не на сезон. Это не консерватизм — это уважение к деньгам и времени покупателя. Купить один раз и носить долго — более ответственный выбор, чем обновлять гардероб каждые три месяца.</p>
+                </div>
+            </div>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 12 — PRODUCT UNIQUENESS
+         Split: close-up detail image (L) + product principles (R)
+         Image: 12:13:46 — close-up face + branded button collar detail
+         ================================================================ -->
+    <section class="slide slide-dark split-slide" id="slide-product" aria-label="Уникальность продукта">
+
+        <!-- Left: branded detail close-up -->
+        <div class="img-col" style="width: 38%;">
+            <img src="IMAGE 2026-04-02 12:13:46.jpg" alt="Деталь одежды Anna Pekun — брендированная пуговица">
+        </div>
+
+        <!-- Right: content -->
+        <div class="slide-content">
+            <span class="bg-num" aria-hidden="true" style="bottom: -0.05em; right: -0.06em; left: auto;">04</span>
+
+            <span class="eyebrow reveal d1">04 — Уникальность продукта</span>
+            <h2 class="reveal d2" style="line-height: 1.05;">Чем наш продукт<br>отличается</h2>
+            <div class="hr-accent reveal d3" style="margin: clamp(0.7rem, 1.7vh, 1.3rem) 0;"></div>
+
+            <p class="reveal d4" style="max-width: 44ch;">
+                Anna Pekun берёт тренд — и делает его своим. Собственные ткани, собственная окраска, собственные принты: то, что появляется у нас, не появится больше нигде.
+            </p>
+
+            <div class="reveal d5" style="margin-top: clamp(0.8rem, 1.8vh, 1.5rem); display: flex; flex-direction: column; gap: clamp(0.3rem, 0.7vh, 0.55rem);">
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Вещь, которую носят пять лет — и которая выглядит как в первый день</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Шов, который не давит; подкладка без мыслей</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Брендированная пуговица, которую замечают чужие</p>
+                <p style="font-family: var(--font-serif); font-size: clamp(0.85rem, 1.7vw, 1.15rem);">— Карман, который аккуратно присутствует</p>
+            </div>
+
+            <p class="reveal d6" style="
+                margin-top: clamp(0.7rem, 1.6vh, 1.3rem);
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: clamp(0.78rem, 1.5vw, 1rem);
+                opacity: 0.45;
+            ">Перед запуском каждой вещи — один вопрос: будет ли она носиться через три года?</p>
+        </div>
+
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 13 — THE FOUNDER
+         Split: founder content (L) + BTS editorial shoot image (R)
+         Image: 12:13:58 — BTS stylist adjusting model's shoes
+         ================================================================ -->
+    <section class="slide slide-dark split-slide" id="slide-founder" aria-label="Основательница как часть бренда">
+
+        <!-- Left: content -->
+        <div class="slide-content" style="max-width: 56%;">
+            <span class="bg-num" aria-hidden="true" style="top: -0.08em; left: -0.06em;">05</span>
+
+            <span class="eyebrow reveal d1">05 — Основательница</span>
+            <h2 class="reveal d2" style="line-height: 1.05;">Личность —<br>это актив</h2>
+            <div class="hr-accent reveal d3" style="margin: clamp(0.7rem, 1.7vh, 1.3rem) 0;"></div>
+
+            <p class="reveal d4" style="max-width: 42ch; margin-bottom: clamp(0.7rem, 1.6vh, 1.3rem);">
+                Анна упоминается в каждом из 16 интервью без подсказки. Это не просто лояльность к основательнице — это особый тип доверия: покупка становится актом принадлежности.
+            </p>
+
+            <div class="founder-quotes reveal d5">
+                <p class="founder-q">«Смотришь на неё и хочется покупать»</p>
+                <p class="founder-q">«Купила босоножки, как у неё»</p>
+                <p class="founder-q">«Светлый человечек»</p>
+                <p class="founder-q">«Я лично её знаю — и с удовольствием об этом говорю»</p>
+            </div>
+        </div>
+
+        <!-- Right: BTS image — "the living brand" -->
+        <div class="img-col" style="width: 44%;">
+            <img src="IMAGE 2026-04-02 12:13:58.jpg" alt="За кулисами съёмок Anna Pekun" style="filter: brightness(0.82);">
+        </div>
+
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 14 — BRAND VOICE
+         Full light: four tone-of-voice principles in 2×2 grid.
+         ================================================================ -->
+    <section class="slide slide-light" id="slide-voice" aria-label="Голос бренда">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">06 — Голос бренда</span>
+            <h2 class="reveal d2">Как мы говорим</h2>
+            <p class="reveal d3" style="
+                font-size: var(--sz-body);
+                opacity: 0.48;
+                margin-top: clamp(0.3rem, 0.7vh, 0.55rem);
+                max-width: 56ch;
+            ">Tone of Voice — это не про «дружелюбно» или «профессионально». Это про то, как звучит бренд в каждом конкретном слове. Anna Pekun говорит — спокойно, по делу, с уважением.</p>
+
+            <div class="hr reveal d4" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <div class="voice-grid reveal d5">
+                <div class="voice-item">
+                    <p class="pillar-tag">Принцип 1</p>
+                    <p class="voice-principle-text">Говорим уверенно,<br>не самодовольно</p>
+                    <p class="voice-contra">«Лучший выбор на рынке»</p>
+                </div>
+                <div class="voice-item">
+                    <p class="pillar-tag">Принцип 2</p>
+                    <p class="voice-principle-text">Говорим конкретно,<br>не абстрактно</p>
+                    <p class="voice-contra">«Идеальный образ для каждой»</p>
+                </div>
+                <div class="voice-item">
+                    <p class="pillar-tag">Принцип 3</p>
+                    <p class="voice-principle-text">Говорим о жизни,<br>не об одежде</p>
+                    <p class="voice-contra">«Красивое платье»</p>
+                </div>
+                <div class="voice-item">
+                    <p class="pillar-tag">Принцип 4</p>
+                    <p class="voice-principle-text">Говорим тихо о скидках,<br>громко о ценности</p>
+                    <p class="voice-contra">«СКИДКА 40%!!! Только сегодня»</p>
+                </div>
+            </div>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 15 — ANTI-BRAND
+         Full dark: what we are vs. what we're not.
+         ================================================================ -->
+    <section class="slide slide-dark" id="slide-anti" aria-label="Антибренд">
+        <div class="slide-content">
+            <span class="bg-num" aria-hidden="true" style="top: -0.08em; right: -0.06em; left: auto;">07</span>
+
+            <span class="eyebrow reveal d1">07 — Антибренд</span>
+            <h2 class="reveal d2">Чем мы не являемся</h2>
+            <p class="reveal d3" style="
+                font-size: var(--sz-body);
+                opacity: 0.42;
+                margin-top: clamp(0.3rem, 0.7vh, 0.55rem);
+                max-width: 55ch;
+            ">Знать, кем мы не являемся — так же важно, как знать, кто мы. Это помогает принимать решения в пограничных ситуациях.</p>
+
+            <div class="hr reveal d4" style="margin: clamp(0.9rem, 2vh, 1.6rem) 0;"></div>
+
+            <div class="anti-grid reveal d5">
+                <div class="anti-col">
+                    <p class="anti-col-label">Мы есть</p>
+                    <div class="anti-item is">Осознанный средний плюс</div>
+                    <div class="anti-item is">Собственный почерк и детали</div>
+                    <div class="anti-item is">Тихое, настоящее качество</div>
+                    <div class="anti-item is">Атмосфера как часть продукта</div>
+                    <div class="anti-item is">Вещи, которые носят годами</div>
+                </div>
+                <div class="anti-col">
+                    <p class="anti-col-label">Нас здесь нет</p>
+                    <div class="anti-item not">Масс-маркет и быстрая мода</div>
+                    <div class="anti-item not">Демонстративный люкс</div>
+                    <div class="anti-item not">Скидочный магазин с акциями</div>
+                    <div class="anti-item not">Тренд-копировщик сезона</div>
+                    <div class="anti-item not">Безликий, без позиции</div>
+                </div>
+            </div>
+        </div>
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 16 — CUSTOMER JOURNEY
+         Full light: retention gap and the critical drop-off point.
+         ================================================================ -->
+    <section class="slide slide-light" id="slide-journey" aria-label="Путь клиента">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">08 — Путь клиента</span>
+            <h2 class="reveal d2">Как она становится<br>нашей и остаётся</h2>
+            <div class="hr reveal d3" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <p class="reveal d4" style="font-size: var(--sz-body); opacity: 0.65; max-width: 58ch;">
+                Знание портрета — половина работы. Вторая половина — понимать, в каком моменте она находится и что бренд должен делать на каждом этапе.
+            </p>
+
+            <div class="retention-display reveal d5">
+                <div class="ret-block">
+                    <span class="ret-num" style="color: var(--accent);">21%</span>
+                    <span class="ret-label">retention<br>новых когорт</span>
+                </div>
+                <span class="ret-arrow" aria-hidden="true">→</span>
+                <div class="ret-block">
+                    <span class="ret-num" style="color: var(--accent-green);">50%+</span>
+                    <span class="ret-label">потенциал<br>удержания</span>
+                </div>
+            </div>
+
+            <div class="hr reveal d6" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <p class="reveal d7" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: clamp(0.9rem, 2vw, 1.35rem);
+                opacity: 0.58;
+                max-width: 58ch;
+            ">Главная потеря происходит между первой и второй покупкой. Именно здесь бренд должен быть внимательнее всего.</p>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 17 — HOW TO APPLY
+         Split: four application areas (L) + BTS content shoot (R)
+         Image: 12:14:01 — photographer shooting model at table
+         ================================================================ -->
+    <section class="slide slide-dark split-slide" id="slide-apply" aria-label="Как применять платформу">
+
+        <!-- Left: content -->
+        <div class="slide-content" style="max-width: 58%;">
+            <span class="bg-num" aria-hidden="true" style="top: -0.08em; left: -0.06em;">09</span>
+
+            <span class="eyebrow reveal d1">09 — Платформа в действии</span>
+            <h2 class="reveal d2">Как применять</h2>
+            <p class="reveal d3" style="
+                font-size: var(--sz-body);
+                opacity: 0.42;
+                margin-top: clamp(0.3rem, 0.6vh, 0.5rem);
+            ">Бренд-платформа — не музейный экспонат. Это рабочий инструмент.</p>
+            <div class="hr reveal d4" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <div class="apply-grid reveal d5">
+                <div class="apply-item">
+                    <span class="apply-n">01</span>
+                    <p class="apply-title">При создании контента</p>
+                    <p class="apply-sub">Фото — женщина в жизни, не вещь на стене. 60% контент, 40% промо.</p>
+                </div>
+                <div class="apply-item">
+                    <span class="apply-n">02</span>
+                    <p class="apply-title">При работе с блогерами</p>
+                    <p class="apply-sub">Бриф содержит столпы. Органичный образ, не анонс скидки.</p>
+                </div>
+                <div class="apply-item">
+                    <span class="apply-n">03</span>
+                    <p class="apply-title">При запуске SALE</p>
+                    <p class="apply-sub">Тихо. Email базе. Без агрессивных заголовков и красных плашек.</p>
+                </div>
+                <div class="apply-item">
+                    <span class="apply-n">04</span>
+                    <p class="apply-title">При открытии новой точки</p>
+                    <p class="apply-sub">Новый канал звучит так же, как все остальные. Первые посты — про атмосферу.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: BTS content creation -->
+        <div class="img-col" style="width: 42%;">
+            <img src="IMAGE 2026-04-02 12:14:01.jpg" alt="Съёмки контента Anna Pekun" style="filter: brightness(0.75);">
+        </div>
+
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 18 — THE FILTER
+         Full off-white: five decision-making questions.
+         ================================================================ -->
+    <section class="slide slide-off" id="slide-filter" aria-label="Фильтр — пять вопросов">
+        <div class="slide-content">
+
+            <span class="eyebrow reveal d1">09 — Фильтр</span>
+            <h2 class="reveal d2">Пять вопросов перед<br>любым действием</h2>
+            <div class="hr reveal d3" style="margin: clamp(0.7rem, 1.7vh, 1.3rem) 0;"></div>
+
+            <ul class="filter-list reveal d4">
+                <li class="filter-item">
+                    <span class="filter-n">1</span>
+                    <p class="filter-q">Это соответствует тому, что ценит наша женщина — качеству, посадке, образу жизни?</p>
+                </li>
+                <li class="filter-item">
+                    <span class="filter-n">2</span>
+                    <p class="filter-q">Это говорит о ценности — или о скидке?</p>
+                </li>
+                <li class="filter-item">
+                    <span class="filter-n">3</span>
+                    <p class="filter-q">Это мог бы сказать масс-маркет или скидочный магазин?</p>
+                </li>
+                <li class="filter-item">
+                    <span class="filter-n">4</span>
+                    <p class="filter-q">Это создаёт ощущение спокойствия и уверенности — или срочности и давления?</p>
+                </li>
+                <li class="filter-item" style="border-bottom: none;">
+                    <span class="filter-n">5</span>
+                    <p class="filter-q">Это то, что мы хотим, чтобы о нас думали через пять лет?</p>
+                </li>
+            </ul>
+
+            <p class="reveal d5" style="
+                margin-top: clamp(0.8rem, 1.8vh, 1.4rem);
+                font-family: var(--font-serif);
+                font-style: italic;
+                opacity: 0.45;
+                font-size: clamp(0.82rem, 1.6vw, 1.05rem);
+            ">Если хотя бы один ответ вызывает сомнение — это повод остановиться.</p>
+
+        </div>
+        <img src="Logo_black.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 19 — CLIENT VOICES
+         Full charcoal: four verbatim client quote clusters.
+         ================================================================ -->
+    <section class="slide slide-charcoal" id="slide-voices" aria-label="Голос клиентов">
+        <div class="slide-content">
+            <span class="bg-num" aria-hidden="true" style="top: -0.06em; right: -0.06em; left: auto;">10</span>
+
+            <span class="eyebrow reveal d1">10 — Голос клиентов</span>
+            <h2 class="reveal d2">Что они говорят —<br>дословно</h2>
+            <p class="reveal d3" style="
+                font-size: var(--sz-body);
+                opacity: 0.42;
+                margin-top: clamp(0.3rem, 0.6vh, 0.5rem);
+                max-width: 58ch;
+            ">16 глубинных интервью. 540 анкет. Не маркетинговые формулировки — это то, что клиенты говорят своими словами.</p>
+
+            <div class="hr reveal d4" style="margin: clamp(0.8rem, 1.9vh, 1.5rem) 0;"></div>
+
+            <div class="voices-grid reveal d5">
+                <div class="voice-card">
+                    <span class="voice-theme">О ценности и доверии</span>
+                    <p class="voice-text">«Ношу пятый год — выглядит как новая. За это и возвращаюсь.»</p>
+                </div>
+                <div class="voice-card">
+                    <span class="voice-theme">Об ощущении и посадке</span>
+                    <p class="voice-text">«Надела первый раз — и сразу поняла: вот это моё. Сидит точно, ничего не тянет.»</p>
+                </div>
+                <div class="voice-card">
+                    <span class="voice-theme">О бренде и основательнице</span>
+                    <p class="voice-text">«Смотришь на неё — и хочется покупать. Светлый человечек. Я лично её знаю.»</p>
+                </div>
+                <div class="voice-card">
+                    <span class="voice-theme">О деталях и упаковке</span>
+                    <p class="voice-text">«Карман на месте — и он настоящий. Открытка в посылке. Чувствуешь, что о тебе думали.»</p>
+                </div>
+            </div>
+
+        </div>
+        <img src="Logo_white.png" class="slide-logo" alt="Anna Pekun">
+    </section>
+
+
+    <!-- ================================================================
+         SLIDE 20 — CLOSING
+         Dark with background camera image + centered brand close.
+         Image: 12:14:08 — close-up of professional camera, production depth
+         ================================================================ -->
+    <section class="slide slide-dark" id="slide-closing" aria-label="Заключение">
+
+        <!-- Background image — dimmed, grayscale-shifted -->
+        <div aria-hidden="true" style="
+            position: absolute; inset: 0;
+            overflow: hidden; z-index: 0;
+        ">
+            <img src="IMAGE 2026-04-02 12:14:08.jpg" alt=""
+                style="
+                    width: 100%; height: 100%;
+                    max-height: none !important;
+                    object-fit: cover;
+                    opacity: 0.16;
+                    filter: brightness(0.65) grayscale(0.45);
+                    display: block;
+                ">
+        </div>
+
+        <!-- Content — centered over background -->
+        <div style="
+            position: relative; z-index: 2;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: var(--slide-padding);
+            overflow: hidden;
+        ">
+            <img src="Logo_white.png"
+                 alt="Anna Pekun"
+                 class="reveal d1"
+                 style="
+                    height: clamp(26px, 4.5vh, 50px);
+                    width: auto;
+                    max-height: none;
+                    opacity: 0.88;
+                    margin-bottom: clamp(1.5rem, 4vh, 3.5rem);
+                 ">
+
+            <h1 class="reveal d2" style="
+                font-size: clamp(3.5rem, 12vw, 10rem);
+                letter-spacing: 0.08em;
+                line-height: 0.88;
+            ">ANNA<br>PEKUN</h1>
+
+            <div aria-hidden="true" class="reveal d3" style="
+                width: clamp(28px, 4vw, 48px);
+                height: 1px;
+                background: var(--accent);
+                margin: clamp(1.5rem, 3.5vh, 3rem) auto;
+                flex-shrink: 0;
+            "></div>
+
+            <p class="reveal d4" style="
+                font-family: var(--font-serif);
+                font-style: italic;
+                font-size: clamp(1rem, 2.5vw, 1.75rem);
+                opacity: 0.68;
+            ">Этот документ — живой. Он обновляется вместе с брендом.</p>
+
+            <p class="reveal d5" style="
+                font-size: var(--sz-small);
+                text-transform: uppercase;
+                letter-spacing: 0.22em;
+                opacity: 0.28;
+                margin-top: clamp(0.8rem, 2vh, 1.5rem);
+            ">Версия&nbsp;1.2 &nbsp;·&nbsp; 2026 &nbsp;·&nbsp; Разработан на основе данных клиентских исследований Anna Pekun</p>
+        </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         PRESENTATION CONTROLLER
+         Handles: scroll detection, keyboard nav, touch/swipe,
+                  mouse wheel, progress bar, nav dots.
+         ================================================================ -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = [...document.querySelectorAll('.slide')];
+                this.total   = this.slides.length;
+                this.current = 0;
+
+                this.progressBar = document.querySelector('.progress-bar');
+                this.navContainer = document.querySelector('.nav-dots');
+
+                this._initObserver();
+                this._initDots();
+                this._initKeyboard();
+                this._initTouch();
+                this._initWheel();
+                this._updateUI(0);
+            }
+
+            /* --- IntersectionObserver: add .visible when a slide enters viewport --- */
+            _initObserver() {
+                const io = new IntersectionObserver(entries => {
+                    entries.forEach(e => {
+                        if (e.isIntersecting) {
+                            e.target.classList.add('visible');
+                            const idx = this.slides.indexOf(e.target);
+                            if (idx !== -1 && idx !== this.current) {
+                                this.current = idx;
+                                this._updateUI(idx);
+                            }
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(s => io.observe(s));
+            }
+
+            /* --- Nav dots: generate one button per slide --- */
+            _initDots() {
+                if (!this.navContainer) return;
+                this.slides.forEach((_, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    btn.setAttribute('aria-label', `Слайд ${i + 1}`);
+                    btn.addEventListener('click', () => this.goTo(i));
+                    this.navContainer.appendChild(btn);
+                });
+            }
+
+            /* --- Update progress bar and active dot --- */
+            _updateUI(idx) {
+                if (this.progressBar) {
+                    const pct = ((idx + 1) / this.total) * 100;
+                    this.progressBar.style.width = `${pct}%`;
+                    this.progressBar.setAttribute('aria-valuenow', Math.round(pct));
+                }
+                document.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === idx);
+                });
+            }
+
+            /* --- Navigate to slide at index --- */
+            goTo(idx) {
+                const i = Math.max(0, Math.min(idx, this.total - 1));
+                this.slides[i].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            next() { this.goTo(this.current + 1); }
+            prev() { this.goTo(this.current - 1); }
+
+            /* --- Keyboard: arrows, space, page up/down, home/end --- */
+            _initKeyboard() {
+                document.addEventListener('keydown', e => {
+                    if (e.target.getAttribute && e.target.getAttribute('contenteditable')) return;
+                    switch (e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                            e.preventDefault(); this.next(); break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                            e.preventDefault(); this.prev(); break;
+                        case 'PageDown': e.preventDefault(); this.next(); break;
+                        case 'PageUp':   e.preventDefault(); this.prev(); break;
+                        case 'Home':     e.preventDefault(); this.goTo(0); break;
+                        case 'End':      e.preventDefault(); this.goTo(this.total - 1); break;
+                    }
+                });
+            }
+
+            /* --- Touch / swipe: vertical swipe triggers prev/next --- */
+            _initTouch() {
+                let sy = 0, sx = 0;
+                document.addEventListener('touchstart', e => {
+                    sy = e.touches[0].clientY;
+                    sx = e.touches[0].clientX;
+                }, { passive: true });
+                document.addEventListener('touchend', e => {
+                    const dy = sy - e.changedTouches[0].clientY;
+                    const dx = sx - e.changedTouches[0].clientX;
+                    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 40) {
+                        dy > 0 ? this.next() : this.prev();
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Wheel: debounced so one scroll = one slide --- */
+            _initWheel() {
+                let last = 0;
+                document.addEventListener('wheel', e => {
+                    const now = Date.now();
+                    if (now - last < 900) return;
+                    last = now;
+                    if (Math.abs(e.deltaY) > 20) {
+                        e.deltaY > 0 ? this.next() : this.prev();
+                    }
+                }, { passive: true });
+            }
+        }
+
+        /* Boot after DOM is ready */
+        document.addEventListener('DOMContentLoaded', () => new SlidePresentation());
+    </script>
+</body>
+</html>
